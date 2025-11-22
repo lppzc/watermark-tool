@@ -1,26 +1,25 @@
 # Watermark Tool v1.0.0
 
-基于OpenCV的C++图像水印工具，支持文字水印和图像水印，可用于批量处理图片。
+Initial release of the Watermark Tool - a C++ image watermarking tool based on OpenCV, supporting text and image watermarks for batch processing images.
 
-## 功能特性
+## Features
+- Support for text watermarks and PNG image watermarks (with alpha channel)
+- Single image processing and batch processing
+- Automatic watermark size adaptation
+- Transparency adjustment support
+- Support for multiple image formats (JPG, PNG, BMP, TIFF, etc.)
+- Cross-platform support (Linux/Windows/macOS)
 
-- ✅ 支持文字水印和PNG图像水印（支持透明通道）
-- ✅ 支持单张图片处理和批量处理
-- ✅ 自动处理水印尺寸适配
-- ✅ 支持透明度调节
-- ✅ 支持多种图像格式（JPG, PNG, BMP, TIFF等）
-- ✅ 跨平台支持（Linux/Windows/macOS）
+## Installation
 
-## 安装
+### Requirements
 
-### 编译要求
-
-- C++11 或更高版本
+- C++11 or higher
 - OpenCV 4.x
 - pkg-config (Linux/macOS)
-- CMake (推荐)
+- CMake (recommended)
 
-### Ubuntu/Debian 系统安装依赖
+### Installing dependencies on Ubuntu/Debian
 
 ```bash
 sudo apt update
@@ -29,7 +28,7 @@ sudo apt install libopencv-dev
 sudo apt install cmake
 ```
 
-### 编译方法
+### Building
 
 ```bash
 mkdir build
@@ -38,51 +37,35 @@ cmake ..
 make
 ```
 
-或者直接使用 g++ 编译：
+Or compile directly with g++:
 
 ```bash
 g++ -std=c++11 watermark.cpp -o watermark $(pkg-config --cflags --libs opencv4)
 ```
 
-## 使用方法
+## Usage
 
-### 单张图片处理
+### Processing a single image
 
 ```bash
-# 添加文字水印
-./watermark input.jpg output.jpg "水印文字"
+# Add text watermark
+./watermark input.jpg output.jpg "Watermark Text"
 
-# 添加图像水印
+# Add image watermark
 ./watermark input.jpg output.jpg watermark.png
 
-# 使用默认水印
+# Use default watermark
 ./watermark input.jpg output.jpg
 ```
 
-### 批量处理
+### Batch processing
 
-1. 将待处理的图片放入 `input/` 目录
-2. 运行批处理脚本：
+1. Put images to be processed in the `input/` directory
+2. Run the batch processing script:
 
 ```bash
 chmod +x batch_watermark.sh
 ./batch_watermark.sh
 ```
 
-处理后的图片将保存在 `output/` 目录中。
-
-## 配置选项
-
-在 [batch_watermark.sh](file:///home/vscode/water_in/batch_watermark.sh) 脚本中可以修改以下配置：
-
-```bash
-INPUT_DIR="input"           # 输入目录
-OUTPUT_DIR="output"         # 输出目录
-WATERMARK_TEXT="© 2024"     # 文字水印内容
-WATERMARK_IMAGE="watermark.png" # 图像水印文件
-MODE="text"                 # 水印模式: "text" 或 "image"
-```
-
-## 许可证
-
-MIT License
+Processed images will be saved in the `output/` directory.
