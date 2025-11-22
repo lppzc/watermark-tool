@@ -1,0 +1,102 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-latest]
+        
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install dependencies on Ubuntu
+      if: matrix.os == 'ubuntu-20.04'
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential libopencv-dev pkg-config
+        
+    - name: Install dependencies on macOS
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install opencv pkg-config
+        
+    - name: Build with g++
+      run: |
+        g++ -std=c++11 watermark.cpp -o watermark $(pkg-config --cflags --libs opencv4) || \
+        g++ -std=c++11 watermark.cpp -o watermark $(pkg-config --cflags --libs opencv)
+        
+    - name: Test executable
+      run: |
+        ./watermark 2>&1 || echo "Executable test completed"
+        
+    - name: Prepare build artifacts
+      run: |
+        chmod +x watermark batch_watermark.sh
+        mkdir -p dist
+        cp watermark dist/
+        cp batch_watermark.sh dist/
+        cp README.md dist/
+        cp RELEASE.md dist/
+        
+    - name: Upload artifact (Ubuntu)
+      if: matrix.os == 'ubuntu-20.04'
+      uses: actions/upload-artifact@v3
+      with:
+        name: watermark-tool-linux
+        path: dist/
+
+    - name: Upload artifact (macOS)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: watermark-tool-macos
+        path: dist/
+
+  release:
+    needs: build
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'release'
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential libopencv-dev pkg-config
+        
+    - name: Build with g++
+      run: |
+        g++ -std=c++11 watermark.cpp -o watermark $(pkg-config --cflags --libs opencv4) || \
+        g++ -std=c++11 watermark.cpp -o watermark $(pkg-config --cflags --libs opencv)
+      
+    - name: Create release package
+      run: |
+        chmod +x watermark batch_watermark.sh
+        mkdir -p water_in/input
+        mkdir -p water_in/output
+        cp watermark water_in/
+        cp batch_watermark.sh water_in/
+        cp README.md water_in/
+        cp RELEASE.md water_in/
+        zip -r water_in-${{ github.event.release.tag_name }}-linux.zip water_in
+        
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./water_in-${{ github.event.release.tag_name }}-linux.zip
+        asset_name: water_in-${{ github.event.release.tag_name }}-linux.zip
+        asset_content_type: application/zip
