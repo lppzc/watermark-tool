@@ -1,23 +1,6 @@
-# 编译产物
-watermark
-*.exe
-
-# 构建目录
 build/
-cmake-build-*/
-
-# IDE相关
-.vscode/
-*.swp
-*.swo
-
-# 操作系统相关
+*.o
+*.exe
+*.out
 .DS_Store
 Thumbs.db
-
-# 输入输出目录
-input/
-output/
-
-# 日志文件
-*.log
